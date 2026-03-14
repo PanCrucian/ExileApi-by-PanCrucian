@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <PanCrucianArtifactsRoot>$(MSBuildThisFileDirectory)artifacts\</PanCrucianArtifactsRoot>
+    <PanCrucianBuildOutputDir>$(PanCrucianArtifactsRoot)build\$(Configuration)\</PanCrucianBuildOutputDir>
+  </PropertyGroup>
+</Project>

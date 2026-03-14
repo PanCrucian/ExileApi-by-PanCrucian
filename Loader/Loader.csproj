@@ -11,7 +11,7 @@
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <OutputPath>..\artifacts\PanCrucian.Net10\</OutputPath>
+    <OutputPath>$(PanCrucianBuildOutputDir)</OutputPath>
     <ApplicationIcon>poehud.ico</ApplicationIcon>
     <DefineConstants>$(DefineConstants);PANCRUCIAN_NET10</DefineConstants>
     <Nullable>disable</Nullable>

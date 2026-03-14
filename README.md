@@ -34,15 +34,54 @@ dotnet build ExileApi.sln
 Build output is written to:
 
 ```text
-artifacts\PanCrucian.Net10\
+artifacts\build\<Configuration>\
 ```
 
-Main artifacts:
+Default example:
+
+```text
+artifacts\build\Debug\
+```
+
+## Publish and release
+
+Create a runnable release package with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Publish-Release.ps1
+```
+
+That produces three distinct layers:
+
+* `ExileApi\` - source workspace only
+* `artifacts\publish\<Configuration>\<RID>\` - raw `dotnet publish` output
+* `artifacts\release\ExileApi-by-PanCrucian-<Configuration>-<RID>\` - clean runnable package
+* `artifacts\release\ExileApi-by-PanCrucian-<Configuration>-<RID>.zip` - distributable archive
+
+Main runtime artifacts inside the release package:
 
 * `Loader.exe`
 * `Loader.dll`
 * `ExileCore.dll`
 * `GameOffsets.dll`
+
+Runtime folders created in the release package:
+
+* `config`
+* `Logs`
+* `Sounds`
+* `fonts`
+* `Plugins\Compiled`
+* `Plugins\Source`
+
+## Workspace layout
+
+Use the folders this way to avoid mixing roles:
+
+* `ExileApi\` is the only source-of-truth workspace.
+* `ExileApi-Compiled-328.5\` is just an old compiled snapshot/reference folder.
+* New runnable packages should be taken from `artifacts\release\...`, not from the source root and not from old compiled snapshots.
+* If you still have the old `artifacts\PanCrucian.Net10\` folder, it is legacy and can be removed with `.\scripts\Clear-LegacyArtifacts.ps1`.
 
 ## Notes
 
