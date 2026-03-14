@@ -1,5 +1,4 @@
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -11,9 +10,12 @@ using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.Shared.Helpers;
 using ExileCore.Shared.Interfaces;
 using JM.LinqFaster;
-using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
 using MoreLinq.Extensions;
 using SharpDX;
+#if !PANCRUCIAN_NET10
+using System.CodeDom.Compiler;
+using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
+#endif
 
 namespace ExileCore.Shared
 {
@@ -66,10 +68,17 @@ namespace ExileCore.Shared
             Task task = null;
             if (sourcePlugins.Length > 0)
             {
+#if PANCRUCIAN_NET10
+                DebugWindow.LogMsg(
+                    "PanCrucian net10 branch skips source plugin hot-compilation. Build plugin projects explicitly and place binaries into Plugins\\Compiled.",
+                    10,
+                    Color.Yellow);
+#else
                 task = Task.Run(() =>
                 {
                     var compilePluginsFromSource = CompilePluginsFromSource(sourcePlugins);
                 });
+#endif
             }
             
 
@@ -175,6 +184,7 @@ namespace ExileCore.Shared
         }
 
 
+#if !PANCRUCIAN_NET10
         private Assembly CompilePlugin(DirectoryInfo info, CodeDomProvider provider, string[] dllFiles)
         {
             var csFiles = info.GetFiles("*.cs", SearchOption.AllDirectories).Select(x => x.FullName)
@@ -345,6 +355,7 @@ namespace ExileCore.Shared
                 return results;
             }
         }
+#endif
 
         private void TryLoadPlugin((Assembly asm, DirectoryInfo directoryInfo) tuple)
         {

@@ -71,9 +71,9 @@ namespace ExileCore.Shared.SomeMagic
                 case TypeCode.Boolean:
                     return BitConverter.GetBytes((bool) (object) generic);
                 case TypeCode.SByte:
-                    return BitConverter.GetBytes((sbyte) (object) generic);
+                    return new[] {(byte) (sbyte) (object) generic};
                 case TypeCode.Byte:
-                    return BitConverter.GetBytes((byte) (object) generic);
+                    return new[] {(byte) (object) generic};
                 case TypeCode.Int16:
                     return BitConverter.GetBytes((short) (object) generic);
                 case TypeCode.UInt16:
@@ -140,6 +140,7 @@ namespace ExileCore.Shared.SomeMagic
                 case TypeCode.Boolean:
                     return (T) (object) BitConverter.ToBoolean(bytes, 0);
                 case TypeCode.SByte:
+                    return (T) (object) (sbyte) bytes[0];
                 case TypeCode.Byte:
                     return (T) (object) bytes[0];
                 case TypeCode.Int16:

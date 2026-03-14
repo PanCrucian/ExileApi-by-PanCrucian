@@ -292,6 +292,9 @@ namespace ExileCore
 
         public void Close()
         {
+            if (threads == null)
+                return;
+
             foreach (var thread in threads)
             {
                 thread.Abort();
@@ -307,8 +310,7 @@ namespace ExileCore
         private readonly Stopwatch sw;
         private readonly Thread thread;
         private bool _wait = true;
-        private volatile bool abort;
-        private bool running = true;
+        private volatile bool running = true;
 
         public ThreadUnit(string name, int number)
         {
@@ -423,24 +425,25 @@ namespace ExileCore
 
         public void Abort()
         {
+            RequestStop();
+        }
+
+        public bool ForceAbort()
+        {
+            RequestStop();
+            return !thread.IsAlive || thread.Join(25);
+        }
+
+        private void RequestStop()
+        {
             Job.IsCompleted = true;
             SecondJob.IsCompleted = true;
             Job.IsFailed = true;
-            Job.IsFailed = true;
-            abort = true;
+            SecondJob.IsFailed = true;
+            running = false;
 
             if (_wait)
                 _event.Set();
-
-            running = false;
-
-            //thread.Abort();
-        }
-
-        public void ForceAbort()
-        {
-            abort = true;
-            thread.Abort();
         }
     }
 }

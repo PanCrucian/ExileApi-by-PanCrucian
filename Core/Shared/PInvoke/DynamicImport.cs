@@ -1,7 +1,6 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 
 namespace ExileCore.Shared.PInvoke
 {
@@ -68,10 +67,6 @@ namespace ExileCore.Shared.PInvoke
 
     internal class DynamicImportException : Win32Exception
     {
-        protected DynamicImportException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-
         public DynamicImportException()
         {
         }

@@ -4,41 +4,51 @@ Public-source fork of the Poe HUD / ExileApi engine assembled to give full contr
 
 ## Public source baseline
 
-This repository is built from the public source tree published by:
+This repository started from the public source tree published by:
 
 * Engine: `Qvin0000/ExileApi`
 * Matching plugin pack: `Qvin0000/ExileApiPlugins`
 * Compiled distribution reference: `exApiTools/ExileApi-Compiled`
 
-`exApiTools` publicly exposes a compiled distribution, while the closest public engine source line is the `Qvin0000` fork family. This fork packages the engine source and matching plugin source together in one repository.
+`exApiTools` publicly exposes a compiled distribution, while the closest public engine source line is the `Qvin0000` fork family. This fork packages the editable engine source and matching plugin source together in one repository.
 
 ## PanCrucian changes
 
+* Main engine migrated to SDK-style `net10.0-windows` projects
+* Root solution simplified to `ExileApi.sln` with only the engine projects
+* Legacy CodeDom/source-hot-compile path disabled in the engine
 * Rebranded loader and assembly metadata to `ExileApi by PanCrucian`
 * Kept technical assembly names like `ExileCore` for plugin compatibility
-* Vendored matching plugin sources into `Plugins/Source`
-* Preserved the DX11-based public source line as the editable baseline
 
 ## Requirements
 
-* .NET Framework 4.8 runtime
-* Visual Studio 2019
-* .NET Framework 4.8 Developer Pack
+* Windows 10/11 x64
+* .NET SDK 10.0.x
 
 ## Build
 
-1. Create a working folder such as `HUD`.
-2. Place a compatible compiled runtime in `HUD\PoeHelper`.
-3. Clone this repository into `HUD\ExileApi-by-PanCrucian` or another sibling folder.
-4. Open `ExileApi.sln`.
-5. Build the solution in Visual Studio 2019.
+```powershell
+dotnet build ExileApi.sln
+```
 
-The build copies output into the runtime folder expected by the original public source layout.
+Build output is written to:
+
+```text
+artifacts\PanCrucian.Net10\
+```
+
+Main artifacts:
+
+* `Loader.exe`
+* `Loader.dll`
+* `ExileCore.dll`
+* `GameOffsets.dll`
 
 ## Notes
 
-* This is the closest publicly available editable baseline found for the ExileApi engine family.
-* If you want this fork to track a newer compiled branch, expect offset updates and API drift work.
+* This repository is now maintained as a parallel PanCrucian branch rather than a compatibility mirror of the original legacy build chain.
+* Source plugin hot-compilation is intentionally disabled on the `net10` branch. Build plugins explicitly and place the binaries into `Plugins\Compiled` if needed.
+* The renderer still uses the public SharpDX-based line for now. The remaining `NU1701` warnings come from `SharpDX.Desktop`, which is functional here but still a future replacement target.
 
 ## Troubleshooting
 

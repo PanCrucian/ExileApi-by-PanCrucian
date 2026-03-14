@@ -1,5 +1,4 @@
 using System;
-using System.CodeDom.Compiler;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -7,7 +6,10 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JM.LinqFaster;
+#if !PANCRUCIAN_NET10
+using System.CodeDom.Compiler;
 using Microsoft.CodeDom.Providers.DotNetCompilerPlatform;
+#endif
 
 namespace ExileCore
 {
@@ -49,6 +51,13 @@ namespace ExileCore
 
         private static void CompilePluginIntoDll(string plugin)
         {
+#if PANCRUCIAN_NET10
+            MessageBox.Show(
+                "Source plugin compilation is disabled in the PanCrucian net10 branch. Build plugin projects explicitly with dotnet build.",
+                "PanCrucian net10",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+#else
             var rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
             var pathToSources = Path.Combine(rootDirectory, "Plugins", "Source");
             var directories = new DirectoryInfo(pathToSources).GetDirectories();
@@ -63,9 +72,10 @@ namespace ExileCore
             {
                 CompileSourceIntoDll(provider,pluginDir);
             }
-            
+#endif
         }
 
+#if !PANCRUCIAN_NET10
         private static CodeDomProvider PrepareProvider()
         {
             CodeDomProvider provider = new CSharpCodeProvider();
@@ -225,10 +235,23 @@ namespace ExileCore
                 MessageBox.Show($"{info.Name}  >>> Successful <<< (Working time: {sw.ElapsedMilliseconds} ms.)");
             }
         }
+#endif
 
 
         private static void CreateOffsets(bool force = false)
         {
+#if PANCRUCIAN_NET10
+            var offsetsAssemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GameOffsets.dll");
+            if (!File.Exists(offsetsAssemblyPath))
+            {
+                MessageBox.Show(
+                    $"Required file not found: {offsetsAssemblyPath}{Environment.NewLine}Build GameOffsets in the PanCrucian net10 solution before launching the HUD.",
+                    "PanCrucian net10",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                Environment.Exit(1);
+            }
+#else
             var dllInfo = new FileInfo(GameOffsets);
             var dirInfo = new DirectoryInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GameOffsets"));
 
@@ -303,10 +326,18 @@ namespace ExileCore
 
                     Assembly.Load(File.ReadAllBytes(GameOffsets));
                 }
+#endif
         }
 
         private static void CompilePluginsIntoDll()
         {
+#if PANCRUCIAN_NET10
+            MessageBox.Show(
+                "Bulk source plugin compilation is disabled in the PanCrucian net10 branch. Build plugin projects explicitly with dotnet build.",
+                "PanCrucian net10",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+#else
             var rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
             var pathToSources = Path.Combine(rootDirectory, "Plugins", "Source");
             var directories = new DirectoryInfo(pathToSources).GetDirectories();
@@ -320,7 +351,7 @@ namespace ExileCore
             {
                 Parallel.ForEach(directoryInfos, info => { CompileSourceIntoDll(provider, info); });
             }
-            
+#endif
         }
     }
 }

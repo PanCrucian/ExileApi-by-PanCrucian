@@ -8,29 +8,23 @@ namespace Loader
 {
     public class AppForm : RenderForm
     {
-        private readonly ContextMenu contextMenu1;
+        private readonly ContextMenuStrip trayMenu;
         public Action FixImguiCapture;
         private readonly NotifyIcon notifyIcon;
 
         public AppForm()
         {
             SuspendLayout();
-            contextMenu1 = new ContextMenu();
-            var menuItem1 = new MenuItem();
-            var menuItem2 = new MenuItem();
-            contextMenu1.MenuItems.AddRange(new[] {menuItem1, menuItem2});
+            trayMenu = new ContextMenuStrip();
+            var bringToFrontMenuItem = new ToolStripMenuItem("Bring to Front");
+            var exitMenuItem = new ToolStripMenuItem("E&xit");
+            trayMenu.Items.AddRange(new ToolStripItem[] { bringToFrontMenuItem, exitMenuItem });
 
-            menuItem2.Index = 0;
-            menuItem2.Text = "Bring to Front";
-
-            menuItem1.Index = 1;
-            menuItem1.Text = "E&xit";
             notifyIcon = new NotifyIcon();
-            notifyIcon.ContextMenu = contextMenu1;
-            notifyIcon.Icon = Icon;
-            menuItem1.Click += (sender, args) => { Close(); };
+            notifyIcon.ContextMenuStrip = trayMenu;
+            exitMenuItem.Click += (sender, args) => { Close(); };
 
-            menuItem2.Click += (sender, args) =>
+            bringToFrontMenuItem.Click += (sender, args) =>
             {
                 BringToFront();
                 FixImguiCapture?.Invoke();
@@ -60,7 +54,7 @@ namespace Loader
                 notifyIcon.Icon = null;
 
             notifyIcon?.Dispose();
-            contextMenu1?.Dispose();
+            trayMenu?.Dispose();
             base.Dispose(disposing);
         }
     }
