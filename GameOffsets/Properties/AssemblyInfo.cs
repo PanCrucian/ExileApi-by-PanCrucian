@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("GameOffsets")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Game offsets for ExileApi by PanCrucian.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GameOffsets")]
+[assembly: AssemblyCompany("PanCrucian")]
+[assembly: AssemblyProduct("ExileApi by PanCrucian")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

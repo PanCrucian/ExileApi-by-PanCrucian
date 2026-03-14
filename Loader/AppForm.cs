@@ -41,8 +41,8 @@ namespace Loader
             StartPosition = FormStartPosition.Manual;
             Location = new Point(0, 0);
 
-            Text = "ExileApi";
-            notifyIcon.Text = "ExileApi";
+            Text = "ExileApi by PanCrucian";
+            notifyIcon.Text = "ExileApi by PanCrucian";
             notifyIcon.Visible = true;
             Size = new Size(1600, 900); //Screen.PrimaryScreen.Bounds.Size;
             FormBorderStyle = FormBorderStyle.None;

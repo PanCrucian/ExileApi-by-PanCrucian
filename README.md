@@ -1,53 +1,46 @@
-# ExileApi private fork of PoeHud
+# ExileApi by PanCrucian
 
-# Current Status
-Basic version with all important(my vision) plugins in release tab.
-Current version can lags and crash because i didn't test that a lot time. Maybe on next week found time for test and publish source code.
+Public-source fork of the Poe HUD / ExileApi engine assembled to give full control over the codebase without relying on decompilation of compiled releases.
 
+## Public source baseline
 
-Dirty copy of my private fork.
-Difference with main fork:
-* Read memory  like structs (better for CPU, but used more memory)
-* New cache system
-* New rendering with DX11
-* Plugins can compile from source
-* A lot diagnostic information for easy found performance problem
-* No hooks mouse and keyboard for prevent lag when debug
-* All "standard" plugins cut. (Now they should be like another plugins)
+This repository is built from the public source tree published by:
 
-# Requirements:
-* .NET 4.8 installed https://dotnet.microsoft.com/download/thank-you/net48
+* Engine: `Qvin0000/ExileApi`
+* Matching plugin pack: `Qvin0000/ExileApiPlugins`
+* Compiled distribution reference: `exApiTools/ExileApi-Compiled`
 
-# For developers:
+`exApiTools` publicly exposes a compiled distribution, while the closest public engine source line is the `Qvin0000` fork family. This fork packages the engine source and matching plugin source together in one repository.
 
-Build requirements:
-* Visual Studio 2019 (with 2017 could be a problems, at least need packages downgrade).
-* .NET 4.8 Developer Pack should be installed https://dotnet.microsoft.com/download/thank-you/net48-developer-pack (don't click on languages/packages at the bottom of page, this is language packages, not the main .NET 4.8 DevPack!).
+## PanCrucian changes
 
-Compilation:
-* Create a new folder (HUD for example)
-* Download release version from current repo, put to HUD directory (HUD\PoeHelper)
-* Clone the this repo code to HUD folder (HUD\ExileApi)
-* Open&Build ExileApi\ExileApi.sln solution.
-* Program will be automatically copied to PoeHelper directory.
+* Rebranded loader and assembly metadata to `ExileApi by PanCrucian`
+* Kept technical assembly names like `ExileCore` for plugin compatibility
+* Vendored matching plugin sources into `Plugins/Source`
+* Preserved the DX11-based public source line as the editable baseline
 
-Known build errors:
-* (check project references) References error in some project: unload then load project to solution (right mouse button on project in solution).
-* Error with MsBuildMajorVersion: Update your VS2019 (maybe you have VS 2019 Preview or something)
-* MsBuild 15 < 16 error: expecting VS 2019 installed. On VS 2017 try downgrade Fody package to version 4.2.1.
+## Requirements
+
+* .NET Framework 4.8 runtime
+* Visual Studio 2019
+* .NET Framework 4.8 Developer Pack
+
+## Build
+
+1. Create a working folder such as `HUD`.
+2. Place a compatible compiled runtime in `HUD\PoeHelper`.
+3. Clone this repository into `HUD\ExileApi-by-PanCrucian` or another sibling folder.
+4. Open `ExileApi.sln`.
+5. Build the solution in Visual Studio 2019.
+
+The build copies output into the runtime folder expected by the original public source layout.
+
+## Notes
+
+* This is the closest publicly available editable baseline found for the ExileApi engine family.
+* If you want this fork to track a newer compiled branch, expect offset updates and API drift work.
 
 ## Troubleshooting
 
-* Download problems:
-
-When download your `7z` from releases maybe this comes with screwed permissions.
-
-> For those who can't launch (Close as soon as it's opened) :
-> Right click on the Zip of the HUD (The one you get from the link in the first post) and Right click > Properties > Unlock, then you can unzip it where you want. Otherwise all the files extracted will be security locked...
-> Worked for a friend, it's a security from Windows that deny access to files from another PC, once done everything was good for him
-
-* Rendering problems
-
-Big visual offsets in rendering minion dots and everything other:
-
-Windows Display options-> Scale and layout -> set to 100%
+* If Windows blocks extracted release files, open the archive properties and use `Unlock` before unpacking.
+* If rendering offsets look wrong, set Windows display scaling to `100%`.
