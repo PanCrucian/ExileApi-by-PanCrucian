@@ -1,0 +1,67 @@
+name: Build GitHub Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, for example v0.1.0"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Resolve release metadata
+        id: meta
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $tag = "${{ inputs.tag }}"
+          }
+          else {
+            $tag = "${{ github.ref_name }}"
+          }
+
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "title=ExileApi by PanCrucian $tag" >> $env:GITHUB_OUTPUT
+          "zip=artifacts/release/ExileApi-by-PanCrucian-Release-win-x64.zip" >> $env:GITHUB_OUTPUT
+          "info=artifacts/release/ExileApi-by-PanCrucian-Release-win-x64/release-info.json" >> $env:GITHUB_OUTPUT
+
+      - name: Build runnable release package
+        shell: pwsh
+        run: powershell -ExecutionPolicy Bypass -File .\scripts\Publish-Release.ps1
+
+      - name: Create or update GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "${{ steps.meta.outputs.tag }}"
+          $title = "${{ steps.meta.outputs.title }}"
+          $zip = "${{ steps.meta.outputs.zip }}"
+          $info = "${{ steps.meta.outputs.info }}"
+
+          gh release view $tag *> $null
+
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag $zip $info --clobber
+          }
+          else {
+            gh release create $tag $zip $info --title $title --generate-notes --target ${{ github.sha }}
+          }

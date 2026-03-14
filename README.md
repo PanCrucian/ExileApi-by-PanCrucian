@@ -58,6 +58,29 @@ That produces three distinct layers:
 * `artifacts\release\ExileApi-by-PanCrucian-<Configuration>-<RID>\` - clean runnable package
 * `artifacts\release\ExileApi-by-PanCrucian-<Configuration>-<RID>.zip` - distributable archive
 
+## GitHub Releases
+
+The repository now includes a GitHub Actions workflow that builds the ready-to-download zip and publishes it to the Releases page.
+
+Automatic tag-based release:
+
+```powershell
+git tag -a v0.1.0 -m "ExileApi by PanCrucian v0.1.0"
+git push origin v0.1.0
+```
+
+Manual GitHub UI release:
+
+1. Open `Actions` on GitHub.
+2. Run `Build GitHub Release`.
+3. Enter a tag like `v0.1.0`.
+4. Wait for the workflow to finish.
+5. The compiled zip appears on the `Releases` page.
+
+Workflow file:
+
+* `.github/workflows/github-release.yml`
+
 Main runtime artifacts inside the release package:
 
 * `Loader.exe`
