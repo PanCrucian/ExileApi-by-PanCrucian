@@ -136,6 +136,7 @@ namespace ExileCore.PoEMemory.MemoryObjects
                 return $"InventSlotItem: {Location}, Item: {Item}";
             }
 
+#pragma warning disable CS0649
             private struct ItemMinMaxLocation
             {
                 private int XMin;
@@ -159,6 +160,7 @@ namespace ExileCore.PoEMemory.MemoryObjects
                     return $"({XMin}, {YMin}, {XMax}, {YMax})";
                 }
             }
+#pragma warning restore CS0649
         }
     }
 }

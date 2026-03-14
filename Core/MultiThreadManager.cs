@@ -35,7 +35,6 @@ namespace ExileCore
         //Used for debug, maybe now can be delete
         private object _objectInitWork;
         private readonly List<ThreadUnit> BrokenThreads = new List<ThreadUnit>();
-        private bool Closed;
         private readonly ConcurrentQueue<ThreadUnit> FreeThreads = new ConcurrentQueue<ThreadUnit>();
         private readonly ConcurrentQueue<Job> Jobs = new ConcurrentQueue<Job>();
         private readonly Queue<Job> processJobs = new Queue<Job>();
@@ -299,8 +298,6 @@ namespace ExileCore
             {
                 thread.Abort();
             }
-
-            Closed = true;
         }
     }
 

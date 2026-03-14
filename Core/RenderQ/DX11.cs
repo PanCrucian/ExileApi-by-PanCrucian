@@ -10,7 +10,6 @@ using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using SharpDX.Windows;
-using Buffer = SharpDX.Direct3D11.Buffer;
 using Device = SharpDX.Direct3D11.Device;
 using Resource = SharpDX.Direct3D11.Resource;
 using Vector4 = System.Numerics.Vector4;
@@ -27,17 +26,14 @@ namespace ExileCore.RenderQ
         private readonly SwapChain _swapChain;
         private readonly object _sync = new object();
         private Color4 ClearColor = new Color4(0, 0, 0, 0);
-        private Buffer ConstantBuffer;
         private double debugTime;
         private double endFrameTime;
         private readonly Factory factory;
         private readonly DebugInformation ImGuiDebug;
-        private Buffer IndexBuffer;
         private readonly DebugInformation SpritesDebug;
         private double startFrameTime;
         private readonly Stopwatch sw;
         private readonly DebugInformation SwapchainDebug;
-        private Buffer VertexBuffer;
         private Viewport Viewport;
 
         public DX11(RenderForm form, CoreSettings coreSettings)
@@ -106,7 +102,6 @@ namespace ExileCore.RenderQ
                 ImGuiRender.Resize(form.Bounds);
                 ImGuiRender.UpdateConstantBuffer();
                 SpritesRender.ResizeConstBuffer(BackBuffer.Description);
-                var descp = BackBuffer.Description;
                 Viewport.Height = form.Height;
                 Viewport.Width = form.Width;
                 DeviceContext.Rasterizer.SetViewport(Viewport);

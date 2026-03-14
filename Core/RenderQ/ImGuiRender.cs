@@ -16,7 +16,6 @@ using SharpDX.D3DCompiler;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
-using SharpDX.Mathematics.Interop;
 using SharpDX.Windows;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using MapFlags = SharpDX.Direct3D11.MapFlags;
@@ -46,11 +45,9 @@ namespace ExileCore.RenderQ
         private DepthStencilState depthStencilState;
         private readonly string LastFontName = "";
         private Matrix4x4 mvp2;
-        private RawColor4 outputMergerBlendFactor;
         private SamplerState samplerState;
         private RasterizerState SolidState;
         private VertexBufferBinding vertexBuffer;
-        private Viewport Viewport;
 
         public ImGuiRender(DX11 dx11, RenderForm form, CoreSettings coreSettings)
         {
@@ -368,7 +365,7 @@ namespace ExileCore.RenderQ
                 Dx11.AddOrUpdateTexture("ImGui Font", FontTexture);
                 InitializeInputSystem();
             }
-            catch (DllNotFoundException ex)
+            catch (DllNotFoundException)
             {
                 throw new DllNotFoundException("Need put in directory cimgui.dll");
             }

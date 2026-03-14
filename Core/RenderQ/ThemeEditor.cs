@@ -29,8 +29,6 @@ namespace ExileCore.RenderQ
         {
             this.coreSettings = coreSettings;
 
-            GenerateDefaultTheme();
-
             if (!Directory.Exists(ThemesFolder))
             {
                 Directory.CreateDirectory(ThemesFolder);
@@ -340,8 +338,6 @@ namespace ExileCore.RenderQ
 
         private static ThemeConfig LoadTheme(string fileName, bool nullIfNotFound)
         {
-            ThemeConfig result;
-
             try
             {
                 var fullPath = Path.Combine(ThemesFolder, fileName + ThemeExtension);

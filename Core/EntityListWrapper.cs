@@ -293,10 +293,16 @@ namespace ExileCore
                 if (entityCache.TryGetValue(entityId, out _)) continue;
 
                 if (entityId >= int.MaxValue && !_settings.ParseServerEntities)
+                {
+                    EntityIgnored?.Invoke(entity);
                     continue;
+                }
 
                 if ( /*!entity.IsValid ||*/ entity.Type == EntityType.Error)
+                {
+                    EntityIgnored?.Invoke(entity);
                     continue;
+                }
 
                 /*if (entity.Type == EntityType.Monster && (entity.GetComponent<Life>() == null ||
                                                           entity.GetComponent<ObjectMagicProperties>() == null))
@@ -308,7 +314,10 @@ namespace ExileCore
                 if (entity.League == LeagueType.Legion)
                 {
                     if (entity.Stats == null)
+                    {
+                        EntityIgnored?.Invoke(entity);
                         continue;
+                    }
                 }
 
                 EntityAddedAny?.Invoke(entity);

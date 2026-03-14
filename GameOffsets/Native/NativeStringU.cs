@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 
 namespace GameOffsets.Native
 {
-    [Obsolete(@"This will be removed (Reason: bad name)")]
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
     public struct NativeStringU
     {
