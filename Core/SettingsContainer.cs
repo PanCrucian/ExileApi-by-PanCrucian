@@ -54,13 +54,13 @@ namespace ExileCore
             {
                 if (!File.Exists(SETTINGS_FILE_NAME))
                 {
-                    var coreSettings = new CoreSettings();
-                    File.AppendAllText(SETTINGS_FILE_NAME, JsonConvert.SerializeObject(coreSettings, Formatting.Indented));
+                    CoreSettings = new CoreSettings();
+                    File.WriteAllText(SETTINGS_FILE_NAME, JsonConvert.SerializeObject(CoreSettings, Formatting.Indented));
                 }
                 else
                 {
                     var readAllText = File.ReadAllText(SETTINGS_FILE_NAME);
-                    CoreSettings = JsonConvert.DeserializeObject<CoreSettings>(readAllText);
+                    CoreSettings = JsonConvert.DeserializeObject<CoreSettings>(readAllText) ?? new CoreSettings();
                 }
 
                 CurrentProfileName = CoreSettings.Profiles.Value;
