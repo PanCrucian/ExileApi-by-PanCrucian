@@ -137,7 +137,11 @@ namespace MiscInformation
             xpLeftQ = 0;
 
             startTime = lastTime = DateTime.UtcNow;
-            startXp = entity.GetComponent<Player>().XP;
+            var player = entity?.GetComponent<Player>();
+            if (player == null)
+                return;
+
+            startXp = player.XP;
             levelXpPenalty = LevelXpPenalty();
         }
 

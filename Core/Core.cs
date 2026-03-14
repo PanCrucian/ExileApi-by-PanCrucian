@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -278,6 +279,7 @@ namespace ExileCore
             {
                 if (_memory != null)
                 {
+                    Logger.Information($"Attaching to process '{_memory.Process.ProcessName}' ({_memory.Process.Id}).");
                     _dx11.ImGuiRender.LostFocus += LostFocus;
                     GameController = new GameController(_memory, _soundController, _settings, MultiThreadManager);
                     lastClientBound = _form.Bounds;
@@ -286,6 +288,8 @@ namespace ExileCore
                     {
                         pluginManager = new PluginManager(GameController, Graphics, MultiThreadManager);
                     }
+
+                    Logger.Information($"Attach completed for process '{_memory.Process.ProcessName}' ({_memory.Process.Id}).");
                 }
             }
             catch (Exception e)
@@ -493,10 +497,54 @@ namespace ExileCore
 
         private static (Process process, Offsets offsets)? FindPoeProcess()
         {
-            var clients = Process.GetProcessesByName(Offsets.Regular.ExeName).Select(x => (x, Offsets.Regular))
+            var clients = new List<(Process process, Offsets offsets)>();
+            var knownProcessNames = new Dictionary<string, Offsets>(StringComparer.OrdinalIgnoreCase)
+            {
+                // Standalone launcher: PathOfExile.exe is current, x64/Client are legacy compatibility variants.
+                ["PathOfExile"] = Offsets.Regular,
+                ["PathOfExile_x64"] = Offsets.Regular,
+                ["Client"] = Offsets.Regular,
+
+                // Steam launcher: modern and legacy compatibility names.
+                ["PathOfExileSteam"] = Offsets.Steam,
+                ["PathOfExile_x64Steam"] = Offsets.Steam,
+
+                // Epic Games launcher.
+                ["PathOfExileEGS"] = Offsets.Regular,
+                ["PathOfExile_x64EGS"] = Offsets.Regular,
+
+                // Kakao/Korean launcher.
+                ["PathOfExile_KG"] = Offsets.Korean,
+                ["PathOfExile_x64_KG"] = Offsets.Korean
+            };
+
+            bool IsExcludedClient(Process process)
+            {
+                try
+                {
+                    var mainModulePath = process.MainModule?.FileName ?? string.Empty;
+                    if (mainModulePath.IndexOf($"{Path.DirectorySeparatorChar}Path of Exile 2{Path.DirectorySeparatorChar}",
+                            StringComparison.OrdinalIgnoreCase) >= 0)
+                        return true;
+                }
+                catch
+                {
+                    // Best-effort filtering only. If Windows refuses module access, fall back to title/name checks.
+                }
+
+                var title = process.MainWindowTitle ?? string.Empty;
+                return title.IndexOf("Path of Exile 2", StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+
+            // PoE1 and PoE2 can share executable names on some launchers, so use an allowlist
+            // for known PoE1 process names and then explicitly filter PoE2 by path/title.
+            clients = Process.GetProcesses()
+                .Where(process => knownProcessNames.TryGetValue(process.ProcessName, out _))
+                .Where(process => !IsExcludedClient(process))
+                .Select(process => (process, knownProcessNames[process.ProcessName]))
                 .ToList();
 
-            clients.AddRange(Process.GetProcessesByName(Offsets.Korean.ExeName).Select(p => (p, Offsets.Korean)));
+            clients = clients.GroupBy(x => x.process.Id).Select(group => group.First()).ToList();
             var ixChosen = clients.Count > 1 ? ChooseSingleProcess(clients) : 0;
 
             if (clients.Count > 0)

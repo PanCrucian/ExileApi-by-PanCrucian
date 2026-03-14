@@ -1,6 +1,8 @@
 <Project>
   <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <PanCrucianArtifactsRoot>$(MSBuildThisFileDirectory)artifacts\</PanCrucianArtifactsRoot>
     <PanCrucianBuildOutputDir>$(PanCrucianArtifactsRoot)build\$(Configuration)\</PanCrucianBuildOutputDir>
+    <PanCrucianPluginOutputDir>$(PanCrucianBuildOutputDir)Plugins\Compiled\</PanCrucianPluginOutputDir>
   </PropertyGroup>
 </Project>

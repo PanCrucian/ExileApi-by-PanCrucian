@@ -94,16 +94,25 @@ namespace DevTree
             objects.Clear();
             AddObjects(GameController.Cache);
             AddObjects(GameController);
-            AddObjects(GameController.Game);
-            AddObjects(GameController.Player, "Player");
-            AddObjects(GameController.Game.IngameState);
-            AddObjects(GameController.Game.IngameState.IngameUi);
-            AddObjects(GameController.Game.IngameState.Data);
-            AddObjects(GameController.Game.IngameState.ServerData);
-            AddObjects(GameController.Game.IngameState.ServerData.PlayerInventories[0].Inventory);
-            AddObjects(GameController.Game.IngameState.ServerData.PlayerInventories[0].Inventory.Items, "Items");
-            AddObjects(GameController.Game.IngameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory], "Inventory panel");
-            AddObjects(GameController.IngameState.IngameUi.ItemsOnGroundLabels, "Label on grounds");
+            var game = GameController.Game;
+            var ingameState = game?.IngameState;
+            var ingameUi = ingameState?.IngameUi;
+            var serverData = ingameState?.ServerData;
+            var playerInventory = serverData?.PlayerInventories != null && serverData.PlayerInventories.Count > 0
+                ? serverData.PlayerInventories[0]
+                : null;
+
+            if (game != null) AddObjects(game);
+            if (GameController.Player != null) AddObjects(GameController.Player, "Player");
+            if (ingameState != null) AddObjects(ingameState);
+            if (ingameUi != null) AddObjects(ingameUi);
+            if (ingameState?.Data != null) AddObjects(ingameState.Data);
+            if (serverData != null) AddObjects(serverData);
+            if (playerInventory?.Inventory != null) AddObjects(playerInventory.Inventory);
+            if (playerInventory?.Inventory?.Items != null) AddObjects(playerInventory.Inventory.Items, "Items");
+            if (ingameUi?.InventoryPanel != null) AddObjects(ingameUi.InventoryPanel[InventoryIndex.PlayerInventory], "Inventory panel");
+            if (GameController.IngameState?.IngameUi?.ItemsOnGroundLabels != null)
+                AddObjects(GameController.IngameState.IngameUi.ItemsOnGroundLabels, "Label on grounds");
             AddObjects(Plugins(),"Plugins");
             _version++;
         }

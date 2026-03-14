@@ -1,52 +1,100 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
-using Serilog;
-using SharpDX;
-using SharpDX.Windows;
 
 namespace Loader
 {
     internal class Program
     {
+        private const string SingleInstanceMutexName = @"Global\ExileApiByPanCrucian.Loader";
+        private const int SwRestore = 9;
+
+        [STAThread]
         public static void Main(string[] args)
         {
-            AskToKillOtherRunningProcesses();
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+            using var singleInstanceMutex = new Mutex(true, SingleInstanceMutexName, out var createdNew);
+            if (!createdNew)
+            {
+                ActivateOrRestartExistingInstance();
+                return;
+            }
+
             var loader = new Loader();
             loader.Load(args);
         }
 
-        private static void AskToKillOtherRunningProcesses()
+        private static void ActivateOrRestartExistingInstance()
         {
             var currentProcess = Process.GetCurrentProcess();
-            var processes = Process.GetProcessesByName(currentProcess.ProcessName);
+            var existingProcess = Process.GetProcessesByName(currentProcess.ProcessName)
+                .Where(process => process.Id != currentProcess.Id)
+                .OrderByDescending(SafeGetStartTimeUtc)
+                .FirstOrDefault();
 
-            if (processes.Length > 1)
+            if (existingProcess == null)
+                return;
+
+            if (existingProcess.MainWindowHandle != IntPtr.Zero)
             {
-                var text = "Kill already running HUD process? (program configs will not be saved)";
-                var caption = "Hud process is already running";
-                var msgBoxResult = MessageBox.Show(text, caption, MessageBoxButtons.OKCancel);
+                ShowWindow(existingProcess.MainWindowHandle, SwRestore);
+                SetForegroundWindow(existingProcess.MainWindowHandle);
+                return;
+            }
 
-                if (msgBoxResult == DialogResult.OK)
+            try
+            {
+                existingProcess.Kill();
+                existingProcess.WaitForExit(5000);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Failed to terminate the old HUD process: {e.Message}", "ExileApi by PanCrucian");
+                return;
+            }
+
+            try
+            {
+                var executablePath = currentProcess.MainModule?.FileName;
+                if (string.IsNullOrEmpty(executablePath))
+                    return;
+
+                Process.Start(new ProcessStartInfo
                 {
-                    foreach (var process in processes)
-                    {
-                        if (process.Id != currentProcess.Id)
-                        {
-                            process.Kill();
-                        }
-                    }
-                }
-                else if (msgBoxResult == DialogResult.Cancel)
-                {
-                    currentProcess.Kill();
-                }
+                    FileName = executablePath,
+                    WorkingDirectory = AppContext.BaseDirectory,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(
+                    $"The old HUD process was terminated, but the fresh instance failed to start: {e.Message}",
+                    "ExileApi by PanCrucian");
             }
         }
+
+        private static DateTime SafeGetStartTimeUtc(Process process)
+        {
+            try
+            {
+                return process.StartTime.ToUniversalTime();
+            }
+            catch
+            {
+                return DateTime.MinValue;
+            }
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     }
 }

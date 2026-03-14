@@ -66,12 +66,14 @@ namespace ExileCore.RenderQ
             VertexBufferSize = 10000;
             IndexBufferSize = 30000;
 
+            var vertexShaderPath = ResolveContentPath("Shaders", "ImGuiVertexShader.hlsl");
+            var pixelShaderPath = ResolveContentPath("Shaders", "ImGuiPixelShader.hlsl");
+
             // Compile the vertex shader code.
-            var vertexShaderByteCode =
-                ShaderBytecode.CompileFromFile("Shaders\\ImGuiVertexShader.hlsl", "VS", "vs_4_0");
+            var vertexShaderByteCode = ShaderBytecode.CompileFromFile(vertexShaderPath, "VS", "vs_4_0");
 
             // Compile the pixel shader code.
-            var pixelShaderByteCode = ShaderBytecode.CompileFromFile("Shaders\\ImGuiPixelShader.hlsl", "PS", "ps_4_0");
+            var pixelShaderByteCode = ShaderBytecode.CompileFromFile(pixelShaderPath, "PS", "ps_4_0");
             VertexShader = new VertexShader(Dx11.D11Device, vertexShaderByteCode);
             PixelShader = new PixelShader(Dx11.D11Device, pixelShaderByteCode);
 
@@ -373,37 +375,51 @@ namespace ExileCore.RenderQ
 
         private unsafe void SetManualFont()
         {
-            var folder = "fonts";
-            var files = Directory.GetFiles(folder);
+            fonts["Default:13"] = new FontContainer(ImGuiNative.ImFontAtlas_AddFontDefault(io.Fonts.NativePtr, null),
+                "Default", 13);
 
-            if (!(Directory.Exists(folder) && files.Length > 0))
+            var folder = ResolveContentPath("fonts");
+            if (!Directory.Exists(folder))
+            {
+                if (fonts.Count > 0) lastFontContainer = fonts.First().Value;
+                CoreSettings.Font.Values = new List<string>(fonts.Keys);
+                if (string.IsNullOrEmpty(CoreSettings.Font.Value) || !fonts.ContainsKey(CoreSettings.Font.Value))
+                    CoreSettings.Font.Value = CoreSettings.Font.Values.FirstOrDefault();
                 return;
+            }
+
+            var files = Directory.GetFiles(folder);
+            if (files.Length == 0)
+            {
+                if (fonts.Count > 0) lastFontContainer = fonts.First().Value;
+                CoreSettings.Font.Values = new List<string>(fonts.Keys);
+                if (string.IsNullOrEmpty(CoreSettings.Font.Value) || !fonts.ContainsKey(CoreSettings.Font.Value))
+                    CoreSettings.Font.Value = CoreSettings.Font.Values.FirstOrDefault();
+                return;
+            }
 
             var fontsForLoad = new List<(string, int)>();
 
-            if (files.Contains($"{folder}\\config.ini"))
+            var configPath = Path.Combine(folder, "config.ini");
+            if (files.Contains(configPath))
             {
-                var lines = File.ReadAllLines($"{folder}\\config.ini");
+                var lines = File.ReadAllLines(configPath);
 
                 foreach (var line in lines)
                 {
                     var split = line.Split(':');
-                    fontsForLoad.Add(($"{folder}\\{split[0]}.ttf", int.Parse(split[1])));
+                    fontsForLoad.Add((Path.Combine(folder, $"{split[0]}.ttf"), int.Parse(split[1])));
                 }
             }
 
             var imFontAtlasGetGlyphRangesCyrillic = ImGuiNative.ImFontAtlas_GetGlyphRangesCyrillic(io.Fonts.NativePtr);
-
-            fonts["Default:13"] = new FontContainer(ImGuiNative.ImFontAtlas_AddFontDefault(io.Fonts.NativePtr, null),
-                "Default", 13);
-
             foreach (var tuple in fontsForLoad)
             {
                 var bytes = Encoding.UTF8.GetBytes(tuple.Item1);
 
                 fixed (byte* f = &bytes[0])
                 {
-                    fonts[$"{tuple.Item1.Replace(".ttf", "").Replace("fonts\\", "")}:{tuple.Item2}"] =
+                    fonts[$"{Path.GetFileNameWithoutExtension(tuple.Item1)}:{tuple.Item2}"] =
                         new FontContainer(
                             ImGuiNative.ImFontAtlas_AddFontFromFileTTF(io.Fonts.NativePtr, f, tuple.Item2, null,
                                 imFontAtlasGetGlyphRangesCyrillic), tuple.Item1, tuple.Item2);
@@ -413,12 +429,19 @@ namespace ExileCore.RenderQ
             if (fonts.Count > 0) lastFontContainer = fonts.First().Value;
 
             CoreSettings.Font.Values = new List<string>(fonts.Keys);
+            if (string.IsNullOrEmpty(CoreSettings.Font.Value) || !fonts.ContainsKey(CoreSettings.Font.Value))
+                CoreSettings.Font.Value = CoreSettings.Font.Values.FirstOrDefault();
         }
 
         private void SetTexture(ShaderResourceView fontTexture)
         {
             io.Fonts.SetTexID(fontTexture.NativePointer);
             io.Fonts.ClearTexData();
+        }
+
+        private static string ResolveContentPath(params string[] parts)
+        {
+            return Path.Combine(AppContext.BaseDirectory, Path.Combine(parts));
         }
 
         private void SetSize(Rectangle formBounds)
@@ -510,10 +533,11 @@ namespace ExileCore.RenderQ
 
                 if (fontName == null)
                 {
-                    if (fonts.TryGetValue(CoreSettings.Font.Value, out var fontN))
+                    var selectedFontName = CoreSettings.Font?.Value;
+                    if (!string.IsNullOrEmpty(selectedFontName) && fonts.TryGetValue(selectedFontName, out var fontN))
                     {
                         fontContainer = fontN;
-                        fontName = CoreSettings.Font.Value;
+                        fontName = selectedFontName;
                         lastFontContainer = fontContainer;
                     }
                     else

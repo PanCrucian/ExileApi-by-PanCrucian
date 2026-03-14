@@ -63,6 +63,8 @@ namespace ExileCore.Shared
             }
 
             var (compiledPlugins, sourcePlugins) = SearchPlugins();
+            Core.Logger.Information(
+                $"PluginManager: discovered {compiledPlugins.Length} compiled plugin directories and {sourcePlugins.Length} source plugin directories.");
             List<(Assembly asm, DirectoryInfo directoryInfo)> assemblies = new List<(Assembly, DirectoryInfo)>();
 
             Task task = null;
@@ -117,6 +119,8 @@ namespace ExileCore.Shared
             AreaOnOnAreaChange(gameController.Area.CurrentArea);
             Plugins.ForEach(x=> x.SubscrideOnFile(HotReloadDll));
             AllPluginsLoaded = true;
+            Core.Logger.Information(
+                $"PluginManager: loaded {Plugins.Count} plugins -> {string.Join(", ", Plugins.Select(x => x.Name))}");
         }
 
         public bool AllPluginsLoaded { get; }
@@ -399,6 +403,8 @@ namespace ExileCore.Shared
                         var elapsedTotalMilliseconds = sw.Elapsed.TotalMilliseconds;
                         pluginWrapper.LoadedTime = elapsedTotalMilliseconds;
                         DebugWindow.LogMsg($"{pluginWrapper.Name} loaded in {elapsedTotalMilliseconds} ms.",1,Color.Orange);
+                        Core.Logger.Information(
+                            $"PluginManager: loaded plugin '{pluginWrapper.Name}' from '{fullPath}' in {elapsedTotalMilliseconds:0.###} ms.");
                         lock (locker)
                         {
                             Plugins.Add(pluginWrapper);

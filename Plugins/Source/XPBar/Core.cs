@@ -122,29 +122,24 @@ namespace XPBar
 
         public override bool Initialise()
         {
-            var pExp = GameController.Player.GetComponent<Player>().XP;
-
-            for (var i = 0; i < ExpTable.Length - 1; i++)
-            {
-                var exp1 = ExpTable[i];
-                var exp2 = ExpTable[i + 1];
-
-                if (pExp > exp1 && pExp < exp2)
-                {
-                    CurMin = exp1;
-                    CurMax = exp2;
-                    CurLvl = i + 2;
-                    break;
-                }
-            }
-            CurDiff = CurMax - CurMin;
+            TryRefreshLevelBounds();
             return true;
         }
 
         public override void Render()
         {
             //var expElement = GameController.Game.IngameState.UIRoot.GetChildFromIndices(1, 57, 12);
-            var pExp = GameController.Player.GetComponent<Player>().XP;
+            var player = GameController.Player?.GetComponent<Player>();
+            if (player == null)
+                return;
+
+            if (CurDiff == 0 || player.XP < CurMin || player.XP > CurMax)
+            {
+                if (!TryRefreshLevelBounds())
+                    return;
+            }
+
+            var pExp = player.XP;
 
             pExp -= CurMin;
             var proc = (float) pExp / CurDiff;
@@ -163,6 +158,41 @@ namespace XPBar
             var drawRect = new RectangleF(center.X - 5 - size.X / 2, center.Y - size.Y / 2, size.X + 10, size.Y);
 
             Graphics.DrawBox(drawRect, Color.Black);
+        }
+
+        private bool TryRefreshLevelBounds()
+        {
+            var player = GameController.Player?.GetComponent<Player>();
+            if (player == null)
+            {
+                CurMin = 0;
+                CurMax = 0;
+                CurDiff = 0;
+                CurLvl = 0;
+                return false;
+            }
+
+            var pExp = player.XP;
+            CurMin = 0;
+            CurMax = 0;
+            CurLvl = 0;
+
+            for (var i = 0; i < ExpTable.Length - 1; i++)
+            {
+                var exp1 = ExpTable[i];
+                var exp2 = ExpTable[i + 1];
+
+                if (pExp > exp1 && pExp < exp2)
+                {
+                    CurMin = exp1;
+                    CurMax = exp2;
+                    CurLvl = i + 2;
+                    break;
+                }
+            }
+
+            CurDiff = CurMax - CurMin;
+            return CurDiff > 0;
         }
     }
 }

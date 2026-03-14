@@ -1,3 +1,4 @@
+using System.Linq;
 using ExileCore.RenderQ;
 using ExileCore.Shared.AtlasHelper;
 using ExileCore.Shared.Enums;
@@ -24,7 +25,19 @@ namespace ExileCore
 
         public DX11 LowLevel { get; }
         public bool TransparentState => ImGuiRender.TransparentState;
-        public FontContainer Font => ImGuiRender.fonts[_settings.Font];
+        public FontContainer Font
+        {
+            get
+            {
+                var selectedFontName = _settings.Font?.Value;
+                if (!string.IsNullOrEmpty(selectedFontName) &&
+                    ImGuiRender.fonts.TryGetValue(selectedFontName, out var selectedFont))
+                    return selectedFont;
+
+                return ImGuiRender.fonts.First().Value;
+            }
+        }
+
         public FontContainer LastFont => ImGuiRender.CurrentFont;
 
         public Vector2N DrawText(string text, Vector2 position, Color color, string fontName = null,

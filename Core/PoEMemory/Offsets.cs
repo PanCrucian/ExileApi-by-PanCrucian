@@ -6,6 +6,13 @@ namespace ExileCore.PoEMemory
 {
     public class Offsets
     {
+        // Temporary pinned RVAs verified against the working ExileApi-Compiled-328.5 runtime
+        // on March 14, 2026 for the current PathOfExile.exe build. We only use them if the
+        // legacy public-source pattern scan clearly returns bogus near-base addresses.
+        private const long KnownGoodFileRootRva = 0x44DC190;
+        private const long KnownGoodAreaChangeCountRva = 0x37F600C;
+        private const long KnownGoodGameStateOffsetRva = 0x4357818;
+
         public static Offsets Regular = new Offsets {IgsOffset = 0, IgsDelta = 0, ExeName = "PathOfExile_x64"};
         public static Offsets Korean = new Offsets {IgsOffset = 0, IgsDelta = 0, ExeName = "Pathofexile_x64_KG"};
 
@@ -160,7 +167,20 @@ namespace ExileCore.PoEMemory
 
             GameStateOffset = m.Read<int>(baseAddress + array[index] + 29) + array[index] + 33;
 
+            if (FileRoot < 0x100000 || AreaChangeCount < 0x100000 || GameStateOffset < 0x100000)
+            {
+                Core.Logger?.Warning(
+                    $"Suspicious legacy pattern RVAs detected (FileRoot=0x{FileRoot:X}, AreaChangeCount=0x{AreaChangeCount:X}, GameStateOffset=0x{GameStateOffset:X}). " +
+                    "Using guarded known-good RVAs from the verified compiled runtime for the current PoE build.");
+                FileRoot = KnownGoodFileRootRva;
+                AreaChangeCount = KnownGoodAreaChangeCountRva;
+                GameStateOffset = KnownGoodGameStateOffsetRva;
+            }
+
             //  System.Console.WriteLine("Game State Offset:" + (GameStateOffset + m.AddressOfProcess).ToString("x8"));
+            Core.Logger?.Verbose($"FileRoot: {(FileRoot + m.AddressOfProcess):x}");
+            Core.Logger?.Verbose($"AreaChangeCount: {(AreaChangeCount + m.AddressOfProcess):x}");
+            Core.Logger?.Verbose($"GameStateOffset: {(GameStateOffset + m.AddressOfProcess):x}");
 
             //  result.Add(OffsetsName.Base,Base);
             result.Add(OffsetsName.FileRoot, FileRoot);

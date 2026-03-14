@@ -42,14 +42,14 @@ namespace ExileCore.RenderQ
             _dx11 = dx11;
             VertexBufferSize = MaxElements * Utilities.SizeOf<Vertex>() * 4;
             IndexBufferSize = MaxElements * Utilities.SizeOf<uint>() * 6;
+            var vertexShaderPath = ResolveContentPath("Shaders", "VertexShader.hlsl");
+            var pixelShaderPath = ResolveContentPath("Shaders", "PixelShader.hlsl");
 
             // Compile the vertex shader code.
-            ShaderBytecode vertexShaderByteCode =
-                ShaderBytecode.CompileFromFile("Shaders\\VertexShader.hlsl", "VS", "vs_4_0");
+            ShaderBytecode vertexShaderByteCode = ShaderBytecode.CompileFromFile(vertexShaderPath, "VS", "vs_4_0");
 
             // Compile the pixel shader code.
-            ShaderBytecode pixelShaderByteCode =
-                ShaderBytecode.CompileFromFile("Shaders\\PixelShader.hlsl", "PS", "ps_4_0");
+            ShaderBytecode pixelShaderByteCode = ShaderBytecode.CompileFromFile(pixelShaderPath, "PS", "ps_4_0");
 
             VertexShader = new VertexShader(_dx11.D11Device, vertexShaderByteCode);
             PixelShader = new PixelShader(_dx11.D11Device, pixelShaderByteCode);
@@ -136,6 +136,11 @@ namespace ExileCore.RenderQ
         private Buffer VertexBuffer { get; set; }
         private Buffer IndexBuffer { get; set; }
         public InputLayout Layout { get; set; }
+
+        private static string ResolveContentPath(params string[] parts)
+        {
+            return Path.Combine(AppContext.BaseDirectory, Path.Combine(parts));
+        }
 
         private int VertexBufferSize
         {

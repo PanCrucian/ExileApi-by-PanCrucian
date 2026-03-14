@@ -52,14 +52,21 @@ namespace ExileCore
             try
             {
                 Cache = new Cache();
+                Core.Logger.Information("GameController: Cache initialized.");
                 Game = new TheGame(memory, Cache);
+                Core.Logger.Information("GameController: TheGame initialized.");
                 Area = new AreaController(Game);
+                Core.Logger.Information("GameController: AreaController initialized.");
                 Window = new GameWindow(memory.Process);
+                Core.Logger.Information("GameController: GameWindow initialized.");
                 Files = Game.Files;
+                Core.Logger.Information("GameController: FilesContainer assigned.");
                 EntityListWrapper = new EntityListWrapper(this, _settings, multiThreadManager);
+                Core.Logger.Information("GameController: EntityListWrapper initialized.");
             }
             catch (Exception e)
             {
+                Core.Logger.Error($"GameController constructor -> {e}");
                 DebugWindow.LogError(e.ToString());
             }
 
@@ -112,8 +119,11 @@ namespace ExileCore
 
             _settings.RefreshArea.OnPressed += () => { Area.ForceRefreshArea(_settings.AreaChangeMultiThread); };
             Area.RefreshState();
+            Core.Logger.Information("GameController: Area state refreshed.");
             EntityListWrapper.StartWork();
+            Core.Logger.Information("GameController: Entity worker started.");
             Initialized = true;
+            Core.Logger.Information("GameController: Initialization completed.");
         }
 
         private Stopwatch sw { get; } = Stopwatch.StartNew();
