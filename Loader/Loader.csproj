@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,7 +28,6 @@
     <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
     <PackageReference Include="SharpDX" Version="4.2.0" />
     <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
-    <PackageReference Include="SharpDX.Desktop" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
     <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />

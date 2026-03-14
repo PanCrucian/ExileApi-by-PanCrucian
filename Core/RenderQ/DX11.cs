@@ -94,6 +94,9 @@ namespace ExileCore.RenderQ
 
             form.UserResized += (sender, args) =>
             {
+                if (form.Width <= 0 || form.Height <= 0)
+                    return;
+
                 RenderTargetView?.Dispose();
                 BackBuffer.Dispose();
 
